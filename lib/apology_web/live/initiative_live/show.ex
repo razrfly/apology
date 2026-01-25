@@ -28,97 +28,125 @@ defmodule ApologyWeb.InitiativeLive.Show do
   @impl true
   def render(assigns) do
     ~H"""
-    <div class="max-w-4xl mx-auto py-8 px-4">
-      <header class="mb-8">
-        <h1 class="text-3xl font-bold mb-2">{@initiative.title}</h1>
-        <p :if={@initiative.tagline} class="text-xl text-base-content/70">
-          {@initiative.tagline}
-        </p>
+    <div class="min-h-screen">
+      <!-- Header -->
+      <header class="py-16 px-6 lg:px-10">
+        <div class="mx-auto w-full max-w-2xl md:max-w-3xl lg:max-w-5xl">
+          <.link navigate="/" class="inline-flex items-center gap-2 text-sm font-medium text-olive-600 dark:text-olive-300 hover:text-olive-950 dark:hover:text-white transition mb-8">
+            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" />
+            </svg>
+            Back to initiatives
+          </.link>
+
+          <h1 class="font-display text-4xl/10 tracking-tight text-balance sm:text-5xl/12 text-olive-950 dark:text-white">
+            {@initiative.title}
+          </h1>
+          <p :if={@initiative.tagline} class="mt-6 text-xl/8 text-olive-600 dark:text-olive-300">
+            {@initiative.tagline}
+          </p>
+        </div>
       </header>
 
-      <section class="mb-8">
-        <div class="stats shadow">
-          <div class="stat">
-            <div class="stat-title">Signatures</div>
-            <div class="stat-value">{format_number(@signature_count)}</div>
-            <div class="stat-desc">Goal: {format_number(@initiative.signature_goal)}</div>
+      <!-- Stats -->
+      <section class="mx-auto w-full max-w-2xl px-6 md:max-w-3xl lg:max-w-5xl lg:px-10 mb-12">
+        <div class="grid grid-cols-3 gap-4">
+          <div class="rounded-2xl bg-white dark:bg-olive-900 p-6 shadow-sm ring-1 ring-olive-950/5 dark:ring-white/10 text-center">
+            <div class="font-display text-3xl tracking-tight text-olive-950 dark:text-white">
+              {format_number(@signature_count)}
+            </div>
+            <div class="mt-1 text-sm text-olive-600 dark:text-olive-300">Signatures</div>
           </div>
-          <div class="stat">
-            <div class="stat-title">Progress</div>
-            <div class="stat-value">{progress_percent(@signature_count, @initiative.signature_goal)}%</div>
-            <div class="stat-desc">of goal reached</div>
+          <div class="rounded-2xl bg-white dark:bg-olive-900 p-6 shadow-sm ring-1 ring-olive-950/5 dark:ring-white/10 text-center">
+            <div class="font-display text-3xl tracking-tight text-olive-950 dark:text-white">
+              {progress_percent(@signature_count, @initiative.signature_goal)}%
+            </div>
+            <div class="mt-1 text-sm text-olive-600 dark:text-olive-300">of goal</div>
           </div>
-          <div class="stat">
-            <div class="stat-title">Targets</div>
-            <div class="stat-value">{length(@initiative.targets)}</div>
-            <div class="stat-desc">tech leaders</div>
-          </div>
-        </div>
-      </section>
-
-      <section class="mb-8">
-        <h2 class="text-2xl font-semibold mb-4">About This Initiative</h2>
-        <div class="prose max-w-none">
-          <p class="whitespace-pre-wrap">{@initiative.description}</p>
-        </div>
-      </section>
-
-      <section :if={@initiative.demand_summary} class="mb-8">
-        <h2 class="text-2xl font-semibold mb-4">Our Demand</h2>
-        <div class="card bg-base-200">
-          <div class="card-body">
-            <p class="whitespace-pre-wrap">{@initiative.demand_summary}</p>
+          <div class="rounded-2xl bg-white dark:bg-olive-900 p-6 shadow-sm ring-1 ring-olive-950/5 dark:ring-white/10 text-center">
+            <div class="font-display text-3xl tracking-tight text-olive-950 dark:text-white">
+              {length(@initiative.targets)}
+            </div>
+            <div class="mt-1 text-sm text-olive-600 dark:text-olive-300">targets</div>
           </div>
         </div>
       </section>
 
-      <section class="mb-8">
-        <h2 class="text-2xl font-semibold mb-4">Tech Leaders Addressed</h2>
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          <div :for={target <- @initiative.targets} class="card bg-base-200 shadow-sm">
-            <div class="card-body">
-              <h3 class="card-title">{target.name}</h3>
-              <p class="text-sm text-base-content/70">
+      <!-- Main Content -->
+      <main class="mx-auto w-full max-w-2xl px-6 md:max-w-3xl lg:max-w-5xl lg:px-10 pb-16">
+        <!-- About -->
+        <section class="mb-12">
+          <h2 class="font-display text-2xl tracking-tight text-olive-950 dark:text-white mb-4">
+            About This Initiative
+          </h2>
+          <div class="prose prose-olive dark:prose-invert max-w-none">
+            <p class="whitespace-pre-wrap text-olive-700 dark:text-olive-200">{@initiative.description}</p>
+          </div>
+        </section>
+
+        <!-- Our Demand -->
+        <section :if={@initiative.demand_summary} class="mb-12">
+          <h2 class="font-display text-2xl tracking-tight text-olive-950 dark:text-white mb-4">
+            Our Demand
+          </h2>
+          <div class="rounded-2xl bg-olive-200 dark:bg-olive-800 p-8">
+            <p class="whitespace-pre-wrap text-olive-800 dark:text-olive-100">{@initiative.demand_summary}</p>
+          </div>
+        </section>
+
+        <!-- Targets -->
+        <section class="mb-12">
+          <h2 class="font-display text-2xl tracking-tight text-olive-950 dark:text-white mb-6">
+            Tech Leaders Addressed
+          </h2>
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div :for={target <- @initiative.targets} class="rounded-2xl bg-white dark:bg-olive-900 p-6 shadow-sm ring-1 ring-olive-950/5 dark:ring-white/10">
+              <h3 class="font-medium text-olive-950 dark:text-white">{target.name}</h3>
+              <p class="mt-1 text-sm text-olive-600 dark:text-olive-300">
                 {target.title}, {target.organization}
               </p>
             </div>
           </div>
-        </div>
-      </section>
+        </section>
 
-      <section :if={length(@grievances) > 0} class="mb-8">
-        <h2 class="text-2xl font-semibold mb-4">Grievances</h2>
-        <div class="space-y-4">
-          <div :for={grievance <- @grievances} class="card bg-base-200">
-            <div class="card-body">
+        <!-- Grievances -->
+        <section :if={length(@grievances) > 0} class="mb-12">
+          <h2 class="font-display text-2xl tracking-tight text-olive-950 dark:text-white mb-6">
+            Grievances
+          </h2>
+          <div class="space-y-4">
+            <div :for={grievance <- @grievances} class="rounded-2xl bg-white dark:bg-olive-900 p-6 shadow-sm ring-1 ring-olive-950/5 dark:ring-white/10">
               <div class="flex items-start gap-4">
-                <div class={"badge badge-#{severity_color(grievance.severity)}"}>
+                <span class={"inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium #{severity_classes(grievance.severity)}"}>
                   {grievance.severity}
-                </div>
+                </span>
                 <div class="flex-1">
-                  <h3 class="font-semibold">{grievance.summary}</h3>
-                  <p class="text-sm text-base-content/70">{grievance.target.name}</p>
-                  <p :if={grievance.description} class="mt-2 text-sm">
+                  <h3 class="font-medium text-olive-950 dark:text-white">{grievance.summary}</h3>
+                  <p class="mt-1 text-sm text-olive-600 dark:text-olive-300">{grievance.target.name}</p>
+                  <p :if={grievance.description} class="mt-3 text-sm text-olive-700 dark:text-olive-200">
                     {grievance.description}
                   </p>
                 </div>
               </div>
             </div>
           </div>
-        </div>
-      </section>
+        </section>
 
-      <section class="mb-8">
-        <div class="card bg-primary text-primary-content">
-          <div class="card-body text-center">
-            <h2 class="card-title justify-center text-2xl">Add Your Voice</h2>
-            <p>Join {format_number(@signature_count)} others demanding accountability</p>
-            <div class="card-actions justify-center mt-4">
-              <button class="btn btn-lg">Sign This Initiative</button>
-            </div>
+        <!-- CTA -->
+        <section>
+          <div class="rounded-2xl bg-olive-950 dark:bg-olive-800 p-8 text-center">
+            <h2 class="font-display text-2xl tracking-tight text-white mb-2">
+              Add Your Voice
+            </h2>
+            <p class="text-olive-200 mb-6">
+              Join {format_number(@signature_count)} others demanding accountability
+            </p>
+            <button class="inline-flex items-center justify-center gap-2 rounded-full bg-white text-olive-950 px-6 py-3 text-sm font-medium hover:bg-olive-100 transition">
+              Sign This Initiative
+            </button>
           </div>
-        </div>
-      </section>
+        </section>
+      </main>
     </div>
     """
   end
@@ -135,8 +163,8 @@ defmodule ApologyWeb.InitiativeLive.Show do
 
   defp progress_percent(_, _), do: 0
 
-  defp severity_color("critical"), do: "error"
-  defp severity_color("severe"), do: "warning"
-  defp severity_color("moderate"), do: "info"
-  defp severity_color(_), do: "ghost"
+  defp severity_classes("critical"), do: "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200"
+  defp severity_classes("severe"), do: "bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-200"
+  defp severity_classes("moderate"), do: "bg-olive-200 text-olive-800 dark:bg-olive-700 dark:text-olive-200"
+  defp severity_classes(_), do: "bg-olive-100 text-olive-600 dark:bg-olive-800 dark:text-olive-300"
 end

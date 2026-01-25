@@ -2,7 +2,6 @@ defmodule Apology.Accounts do
   @moduledoc """
   The Accounts context - user management.
   """
-  import Ecto.Query
 
   alias Apology.Repo
   alias Apology.Accounts.User
