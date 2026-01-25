@@ -7,6 +7,9 @@
 /* Heroicons plugin */
 @plugin "../vendor/heroicons";
 
+/* Enable media-based dark mode (prefers-color-scheme) */
+@custom-variant dark (@media (prefers-color-scheme: dark));
+
 /* Oatmeal Theme Variables */
 @theme {
   --font-display: 'Instrument Serif', serif;

@@ -1,0 +1,9 @@
+<.navbar current_path={assigns[:current_path] || "/"} />
+
+<main class="min-h-screen bg-olive-100 dark:bg-olive-950">
+  {@inner_content}
+</main>
+
+<.flash_group flash={@flash} />
+
+<.site_footer />

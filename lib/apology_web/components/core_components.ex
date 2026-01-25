@@ -31,6 +31,12 @@ defmodule ApologyWeb.CoreComponents do
 
   alias Phoenix.LiveView.JS
 
+  # Import verified routes for ~p sigil
+  use Phoenix.VerifiedRoutes,
+    endpoint: ApologyWeb.Endpoint,
+    router: ApologyWeb.Router,
+    statics: ApologyWeb.static_paths()
+
   @doc """
   Renders flash notices.
 
@@ -468,5 +474,215 @@ defmodule ApologyWeb.CoreComponents do
   """
   def translate_errors(errors, field) when is_list(errors) do
     for {^field, {msg, opts}} <- errors, do: translate_error({msg, opts})
+  end
+
+  # =============================================================================
+  # Site Navigation Components (Oatmeal Theme)
+  # =============================================================================
+
+  @doc """
+  Renders a navigation link with Oatmeal styling.
+
+  ## Examples
+
+      <.nav_link href="/" current={true}>Home</.nav_link>
+      <.nav_link navigate={~p"/about"}>About</.nav_link>
+  """
+  attr :current, :boolean, default: false, doc: "whether this is the current page"
+  attr :class, :string, default: nil
+  attr :rest, :global, include: ~w(href navigate patch method)
+  slot :inner_block, required: true
+
+  def nav_link(assigns) do
+    ~H"""
+    <.link
+      class={[
+        "text-sm/7 font-medium transition-colors",
+        @current && "text-olive-950 dark:text-white",
+        !@current && "text-olive-600 hover:text-olive-950 dark:text-olive-400 dark:hover:text-white",
+        @class
+      ]}
+      {@rest}
+    >
+      {render_slot(@inner_block)}
+    </.link>
+    """
+  end
+
+  @doc """
+  Renders a mobile navigation link with Oatmeal styling.
+
+  ## Examples
+
+      <.mobile_nav_link href="/">Home</.mobile_nav_link>
+  """
+  attr :rest, :global, include: ~w(href navigate patch method)
+  slot :inner_block, required: true
+
+  def mobile_nav_link(assigns) do
+    ~H"""
+    <.link
+      class="group flex items-center justify-between text-3xl/10 font-medium text-olive-950 dark:text-white"
+      {@rest}
+    >
+      {render_slot(@inner_block)}
+      <span class="inline-flex p-1.5 opacity-0 group-hover:opacity-100" aria-hidden="true">
+        <svg fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+          <path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" />
+        </svg>
+      </span>
+    </.link>
+    """
+  end
+
+  @doc """
+  Renders the site navbar with logo, links, and mobile menu.
+
+  ## Examples
+
+      <.navbar current_path={@conn.request_path} />
+  """
+  attr :current_path, :string, default: "/", doc: "the current request path for highlighting"
+
+  def navbar(assigns) do
+    ~H"""
+    <header class="sticky top-0 z-10 bg-olive-100 dark:bg-olive-950">
+      <style>:root { --scroll-padding-top: 5.25rem }</style>
+      <nav>
+        <div class="mx-auto flex h-[5.25rem] max-w-7xl items-center gap-4 px-6 lg:px-10">
+          <%!-- Logo and Links --%>
+          <div class="flex flex-1 items-center gap-12">
+            <.link navigate={~p"/"} class="inline-flex items-center gap-2">
+              <span class="font-display text-xl tracking-tight text-olive-950 dark:text-white">
+                Apology.io
+              </span>
+            </.link>
+            <div class="flex gap-8 max-lg:hidden">
+              <.nav_link navigate={~p"/"} current={@current_path == "/"}>Home</.nav_link>
+              <.nav_link navigate={~p"/about"} current={@current_path == "/about"}>About</.nav_link>
+              <.nav_link navigate={~p"/story"} current={@current_path == "/story"}>Our Story</.nav_link>
+            </div>
+          </div>
+
+          <%!-- Actions area (future: auth buttons) --%>
+          <div class="flex flex-1 items-center justify-end gap-4">
+            <div class="flex shrink-0 items-center gap-5">
+              <%!-- Future: Sign In / Sign Up buttons --%>
+            </div>
+
+            <%!-- Mobile menu button --%>
+            <button
+              id="mobile-menu-button"
+              phx-click={show_mobile_menu()}
+              aria-label="Toggle menu"
+              class="inline-flex rounded-full p-1.5 text-olive-950 hover:bg-olive-950/10 lg:hidden dark:text-white dark:hover:bg-white/10"
+            >
+              <svg viewBox="0 0 24 24" fill="currentColor" class="size-6">
+                <path
+                  fill-rule="evenodd"
+                  d="M3.748 8.248a.75.75 0 0 1 .75-.75h15a.75.75 0 0 1 0 1.5h-15a.75.75 0 0 1-.75-.75ZM3.748 15.75a.75.75 0 0 1 .75-.751h15a.75.75 0 0 1 0 1.5h-15a.75.75 0 0 1-.75-.75Z"
+                  clip-rule="evenodd"
+                />
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <%!-- Mobile menu overlay --%>
+        <div
+          id="mobile-menu"
+          class="fixed inset-0 z-50 bg-olive-100 px-6 py-6 lg:hidden dark:bg-olive-950 hidden"
+        >
+          <div class="flex justify-end">
+            <button
+              phx-click={hide_mobile_menu()}
+              aria-label="Close menu"
+              class="inline-flex rounded-full p-1.5 text-olive-950 hover:bg-olive-950/10 dark:text-white dark:hover:bg-white/10"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke-width="1.5"
+                stroke="currentColor"
+                class="size-6"
+              >
+                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+          <div class="mt-6 flex flex-col gap-6">
+            <.mobile_nav_link navigate={~p"/"}>Home</.mobile_nav_link>
+            <.mobile_nav_link navigate={~p"/about"}>About</.mobile_nav_link>
+            <.mobile_nav_link navigate={~p"/story"}>Our Story</.mobile_nav_link>
+          </div>
+        </div>
+      </nav>
+    </header>
+    """
+  end
+
+  defp show_mobile_menu(js \\ %JS{}) do
+    js
+    |> JS.show(to: "#mobile-menu", transition: {"ease-out duration-200", "opacity-0", "opacity-100"})
+    |> JS.add_class("overflow-hidden", to: "body")
+  end
+
+  defp hide_mobile_menu(js \\ %JS{}) do
+    js
+    |> JS.hide(to: "#mobile-menu", transition: {"ease-in duration-150", "opacity-100", "opacity-0"})
+    |> JS.remove_class("overflow-hidden", to: "body")
+  end
+
+  @doc """
+  Renders a footer link.
+
+  ## Examples
+
+      <.footer_link href="/about">About</.footer_link>
+  """
+  attr :rest, :global, include: ~w(href navigate patch method)
+  slot :inner_block, required: true
+
+  def footer_link(assigns) do
+    ~H"""
+    <li class="text-olive-700 dark:text-olive-400">
+      <.link class="hover:text-olive-950 dark:hover:text-white transition-colors" {@rest}>
+        {render_slot(@inner_block)}
+      </.link>
+    </li>
+    """
+  end
+
+  @doc """
+  Renders the site footer with navigation links.
+
+  ## Examples
+
+      <.site_footer />
+  """
+  def site_footer(assigns) do
+    ~H"""
+    <footer class="pt-16">
+      <div class="bg-olive-950/[0.025] py-16 text-olive-950 dark:bg-white/5 dark:text-white">
+        <div class="mx-auto w-full max-w-2xl px-6 md:max-w-3xl lg:max-w-7xl lg:px-10">
+          <div class="flex flex-col gap-10 text-center text-sm/7">
+            <div class="flex flex-col gap-6">
+              <nav>
+                <ul class="flex flex-wrap items-center justify-center gap-x-10 gap-y-2">
+                  <.footer_link navigate={~p"/"}>Home</.footer_link>
+                  <.footer_link navigate={~p"/about"}>About</.footer_link>
+                  <.footer_link navigate={~p"/story"}>Our Story</.footer_link>
+                </ul>
+              </nav>
+            </div>
+            <div class="text-olive-600 dark:text-olive-500">
+              <p>&copy; {DateTime.utc_now().year} Apology.io. Demanding accountability, one signature at a time.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </footer>
+    """
   end
 end

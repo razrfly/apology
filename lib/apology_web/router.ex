@@ -18,6 +18,8 @@ defmodule ApologyWeb.Router do
     pipe_through :browser
 
     get "/", PageController, :home
+    get "/about", PageController, :about
+    get "/story", PageController, :story
 
     # Initiative routes
     live "/i/:slug", InitiativeLive.Show, :show
