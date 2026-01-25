@@ -14,6 +14,8 @@ defmodule Apology.Campaigns.Target do
     field :organization, :string
     field :photo_url, :string
     field :bio, :string
+    field :wikipedia_title, :string
+    field :logo_slug, :string
 
     has_many :grievances, Apology.Campaigns.Grievance
     many_to_many :initiatives, Apology.Campaigns.Initiative,
@@ -25,7 +27,7 @@ defmodule Apology.Campaigns.Target do
   @doc false
   def changeset(target, attrs) do
     target
-    |> cast(attrs, [:name, :title, :organization, :photo_url, :bio])
+    |> cast(attrs, [:name, :title, :organization, :photo_url, :bio, :wikipedia_title, :logo_slug])
     |> validate_required([:name])
     |> Slug.maybe_generate_slug()
     |> Slug.unique_constraint()
