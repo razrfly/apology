@@ -7,6 +7,7 @@
 
 alias Apology.Repo
 alias Apology.Campaigns.{Initiative, Target, Grievance, InitiativeTarget}
+alias Apology.Wikipedia
 
 # Only seed if database is empty
 if Repo.aggregate(Initiative, :count) == 0 do
@@ -18,51 +19,74 @@ if Repo.aggregate(Initiative, :count) == 0 do
       name: "Tim Cook",
       title: "CEO",
       organization: "Apple Inc.",
-      bio: "Chief Executive Officer of Apple Inc. since 2011."
+      bio: "Chief Executive Officer of Apple Inc. since 2011.",
+      wikipedia_title: "Tim_Cook",
+      logo_slug: "apple"
     },
     %{
       name: "Jeff Bezos",
       title: "Executive Chairman",
       organization: "Amazon",
-      bio: "Founder of Amazon and Blue Origin. Former CEO of Amazon."
+      bio: "Founder of Amazon and Blue Origin. Former CEO of Amazon.",
+      wikipedia_title: "Jeff_Bezos",
+      logo_slug: "amazon"
     },
     %{
       name: "Sundar Pichai",
       title: "CEO",
       organization: "Alphabet/Google",
-      bio: "Chief Executive Officer of Alphabet Inc. and Google."
+      bio: "Chief Executive Officer of Alphabet Inc. and Google.",
+      wikipedia_title: "Sundar_Pichai",
+      logo_slug: "google"
     },
     %{
       name: "Satya Nadella",
       title: "CEO",
       organization: "Microsoft",
-      bio: "Chief Executive Officer of Microsoft Corporation since 2014."
+      bio: "Chief Executive Officer of Microsoft Corporation since 2014.",
+      wikipedia_title: "Satya_Nadella",
+      logo_slug: "microsoft"
     },
     %{
       name: "Mark Zuckerberg",
       title: "CEO",
       organization: "Meta",
-      bio: "Founder and CEO of Meta Platforms (formerly Facebook)."
+      bio: "Founder and CEO of Meta Platforms (formerly Facebook).",
+      wikipedia_title: "Mark_Zuckerberg",
+      logo_slug: "meta"
     },
     %{
       name: "Elon Musk",
       title: "CEO",
       organization: "Tesla/SpaceX/X",
-      bio: "CEO of Tesla, SpaceX, and owner of X (formerly Twitter)."
+      bio: "CEO of Tesla, SpaceX, and owner of X (formerly Twitter).",
+      wikipedia_title: "Elon_Musk",
+      logo_slug: "tesla"
     },
     %{
       name: "Jensen Huang",
       title: "CEO",
       organization: "NVIDIA",
-      bio: "Co-founder and CEO of NVIDIA Corporation."
+      bio: "Co-founder and CEO of NVIDIA Corporation.",
+      wikipedia_title: "Jensen_Huang",
+      logo_slug: "nvidia"
     }
   ]
 
+  IO.puts("Fetching Wikipedia photos...")
+
   targets =
     Enum.map(targets_data, fn data ->
+      # Fetch photo from Wikipedia
+      photo_url = Wikipedia.get_thumbnail_url(data.wikipedia_title)
+
       %Target{}
-      |> Target.changeset(data)
+      |> Target.changeset(Map.put(data, :photo_url, photo_url))
       |> Repo.insert!()
+      |> tap(fn target ->
+        status = if photo_url, do: "✓ photo", else: "✗ no photo"
+        IO.puts("  #{target.name} (#{status})")
+      end)
     end)
 
   IO.puts("Created #{length(targets)} targets")

@@ -102,10 +102,31 @@ defmodule ApologyWeb.InitiativeLive.Show do
         </h2>
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           <div :for={target <- @initiative.targets} class="rounded-2xl bg-white dark:bg-olive-900 p-6 shadow-sm ring-1 ring-olive-950/5 dark:ring-white/10">
-            <h3 class="font-medium text-olive-950 dark:text-white">{target.name}</h3>
-            <p class="mt-1 text-sm text-olive-600 dark:text-olive-300">
-              {target.title}, {target.organization}
-            </p>
+            <div class="flex items-center gap-4">
+              <%!-- Photo or Initials --%>
+              <div :if={target.photo_url} class="h-14 w-14 rounded-full overflow-hidden bg-olive-200 dark:bg-olive-700 flex-shrink-0">
+                <img src={target.photo_url} alt={target.name} class="h-full w-full object-cover" loading="lazy" />
+              </div>
+              <div :if={!target.photo_url} class="h-14 w-14 rounded-full bg-olive-200 dark:bg-olive-700 flex items-center justify-center flex-shrink-0">
+                <span class="text-lg font-medium text-olive-600 dark:text-olive-300">
+                  {initials(target.name)}
+                </span>
+              </div>
+
+              <%!-- Info --%>
+              <div class="flex-1 min-w-0">
+                <h3 class="font-medium text-olive-950 dark:text-white">{target.name}</h3>
+                <p class="mt-1 text-sm text-olive-600 dark:text-olive-300 flex items-center gap-1.5">
+                  <img
+                    :if={target.logo_slug}
+                    src={"https://cdn.jsdelivr.net/npm/simple-icons@latest/icons/#{target.logo_slug}.svg"}
+                    alt={target.organization}
+                    class="h-3.5 w-3.5 opacity-50 dark:invert dark:opacity-70"
+                  />
+                  <span class="truncate">{target.title}, {target.organization}</span>
+                </p>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -176,11 +197,12 @@ defmodule ApologyWeb.InitiativeLive.Show do
              |> assign(:signature_count, socket.assigns.signature_count + 1)
              |> put_flash(:info, "Thank you for signing!")}
 
-          {:error, %Ecto.Changeset{errors: [user_id: {"has already been taken", _}]}} ->
-            {:noreply, put_flash(socket, :info, "You've already signed this initiative")}
-
-          {:error, _changeset} ->
-            {:noreply, put_flash(socket, :error, "Something went wrong. Please try again.")}
+          {:error, %Ecto.Changeset{} = changeset} ->
+            if has_uniqueness_error?(changeset, :user_id) do
+              {:noreply, put_flash(socket, :info, "You've already signed this initiative")}
+            else
+              {:noreply, put_flash(socket, :error, "Something went wrong. Please try again.")}
+            end
         end
     end
   end
@@ -201,4 +223,22 @@ defmodule ApologyWeb.InitiativeLive.Show do
   defp severity_classes("severe"), do: "bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-200"
   defp severity_classes("moderate"), do: "bg-olive-200 text-olive-800 dark:bg-olive-700 dark:text-olive-200"
   defp severity_classes(_), do: "bg-olive-100 text-olive-600 dark:bg-olive-800 dark:text-olive-300"
+
+  defp has_uniqueness_error?(%Ecto.Changeset{} = changeset, field) do
+    Enum.any?(changeset.errors, fn
+      {^field, {_msg, opts}} -> opts[:constraint] == :unique
+      _ -> false
+    end)
+  end
+
+  defp initials(name) when is_binary(name) do
+    name
+    |> String.split()
+    |> Enum.map(&String.first/1)
+    |> Enum.take(2)
+    |> Enum.join()
+    |> String.upcase()
+  end
+
+  defp initials(_), do: "?"
 end
