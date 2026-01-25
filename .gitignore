@@ -38,3 +38,4 @@ npm-debug.log
 # Licensed Tailwind Plus theme (not for redistribution)
 /assets/vendor/oatmeal/
 
+.env
