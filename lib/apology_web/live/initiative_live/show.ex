@@ -198,7 +198,7 @@ defmodule ApologyWeb.InitiativeLive.Show do
              |> put_flash(:info, "Thank you for signing!")}
 
           {:error, %Ecto.Changeset{} = changeset} ->
-            if has_uniqueness_error?(changeset, :user_id) do
+            if has_uniqueness_error?(changeset, :initiative_id) do
               {:noreply, put_flash(socket, :info, "You've already signed this initiative")}
             else
               {:noreply, put_flash(socket, :error, "Something went wrong. Please try again.")}
