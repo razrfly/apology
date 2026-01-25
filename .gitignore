@@ -35,3 +35,7 @@ apology-*.tar
 npm-debug.log
 /assets/node_modules/
 
+# Licensed Tailwind Plus theme (not for redistribution)
+/assets/vendor/oatmeal/
+
+.env
